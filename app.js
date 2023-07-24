@@ -232,7 +232,6 @@ function handleKeyDown(event) {
   } else if (event.key === " ") {
     spacebarPressed = true;
   }
-console.log(event.key)
 }
 
 function handleKeyUp(event) {
@@ -257,7 +256,7 @@ function checkCollision() {
       // Collision detected and spacebar is pressed
       playerDistance += 1000; // Add 1000 points to the player's score
       spacebarPressed = false; // Reset the spacebar flag to prevent multiple score increments
-      console.log("1000 points!");
+
 blinkCanvasBackground(true);
             const wallIndex = yellowWalls.indexOf(wall);
       if (wallIndex !== -1) {
@@ -331,9 +330,9 @@ createBox(player.x, player.y);
 // Check if the player has lost all lives
   if (player.lives <= 0) {
     // Perform any game over actions here
-   // alert("Game Over");
-//api_chat_send(`My LiltLine Score is: ${playerScore} Can you beat it?`)
-  //  return; // Stop the animation loop
+    alert("Game Over");
+api_chat_send(`My LiltLine Score is: ${playerScore} Can you beat it?`)
+    return; // Stop the animation loop
   }
 
   const offsetX = currentTime * speed;
