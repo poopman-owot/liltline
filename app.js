@@ -52,7 +52,7 @@ let thicknessOffset = 0; // Initialize the thickness offset
 let verticalShift = owotHeight / 3; // Vertical shift for the waveform
 
 // Countdown properties
-let countdownDuration = 5000; // Duration of the countdown in milliseconds (3 seconds)
+let countdownDuration = 7000; // Duration of the countdown in milliseconds (3 seconds)
 let countdownValue = countdownDuration; // Remaining time during the countdown
 // Variables for player distance score
 let playerDistance = 0; // Initialize the player distance score to 0
@@ -398,7 +398,7 @@ createBox(player.x, player.y);
 
 // Start the animation
 let prevTime = performance.now();
-animate();
+
 // Create an array to store multiple yellow walls
 var audioAverageLevel = 5000;
 var ATS =0;
@@ -474,6 +474,7 @@ ATS = timestamp;
 
  xhr.onload = function () {
     if (xhr.status === 200) {
+      setTimeout(animate,1000)
       audioStartTime = audioContext.currentTime; // Record the audio start time
       audioContext.decodeAudioData(xhr.response, startAnalysis, (error) => {
         console.error("Error decoding audio data:", error);
