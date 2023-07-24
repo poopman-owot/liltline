@@ -17,6 +17,28 @@ mainView.appendChild(canvas);
 // Set canvas width and height
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+// Create an array to store multiple yellow walls
+
+
+// Create an array to store multiple yellow walls
+const yellowWalls = [];
+
+// Function to draw a single yellow wall
+function drawYellowWall(x, timeToTravel) {
+  const wallWidth = 100; // Width of the yellow wall
+  const wallHeight = canvas.height; // Height of the yellow wall (extends from top to bottom)
+
+  let startTime = performance.now();
+  let endTime = startTime + timeToTravel;
+
+  // Create a yellow wall object and add it to the array
+  yellowWalls.push({
+    x: x,
+    wallWidth: wallWidth,
+    startTime: startTime,
+    endTime: endTime
+  });
+}
 
 // Waveform properties
 let frequency = 0.0001; // Controls the frequency of the Perlin noise for the waveform height
@@ -140,9 +162,14 @@ const player = {
 let blinkBackground = false;
 
 // Function to handle canvas background blink
-function blinkCanvasBackground() {
+function blinkCanvasBackground(random) {
   if (blinkBackground) {
+if(random){
+canvas.style.backgroundColor = getRandomColor();
+}
+else{
     canvas.style.backgroundColor = "red";
+}
   } else {
     canvas.style.backgroundColor = ""; // Reset to default background color
   }
@@ -190,26 +217,64 @@ function drawBoxes() {
   }
 }
 // Add an event listener to handle keyboard input
+// Add an event listener to handle keyboard input
 document.addEventListener("keydown", handleKeyDown);
 document.addEventListener("keyup", handleKeyUp);
 let moveUp = false;
 let moveDown = false;
+let spacebarPressed = false;
 
 function handleKeyDown(event) {
-  if (event.key === "ArrowUp") {
+  if (event.key === "ArrowUp" || event.key === "w") {
     moveUp = true;
-  } else if (event.key === "ArrowDown") {
+  } else if (event.key === "ArrowDown"||event.key === "s") {
     moveDown = true;
+  } else if (event.key === " ") {
+    spacebarPressed = true;
   }
+console.log(event.key)
 }
 
 function handleKeyUp(event) {
-  if (event.key === "ArrowUp") {
+  if (event.key === "ArrowUp" || event.key === "w") {
     moveUp = false;
-  } else if (event.key === "ArrowDown") {
+  } else if (event.key === "ArrowDown"||event.key === "s") {
     moveDown = false;
+  } else if (event.key === " ") {
+    spacebarPressed = false;
   }
 }
+
+// Function to check for collision between the player and the yellow walls
+function checkCollision() {
+  const playerRight = player.x + player.width;
+
+  // Loop through all yellow walls to check for collision
+  for (const wall of yellowWalls) {
+    const yellowWallLeft = wall.posX;
+
+    if (playerRight >= yellowWallLeft && spacebarPressed) {
+      // Collision detected and spacebar is pressed
+      playerDistance += 1000; // Add 1000 points to the player's score
+      spacebarPressed = false; // Reset the spacebar flag to prevent multiple score increments
+      console.log("1000 points!");
+blinkCanvasBackground(true);
+            const wallIndex = yellowWalls.indexOf(wall);
+      if (wallIndex !== -1) {
+        yellowWalls.splice(wallIndex, 1);
+      }
+    }
+  }
+}
+function getRandomColor() {
+  const letters = "0123456789ABCDEF";
+  let color = "#";
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
 function checkPixelsAroundPlayer(playerX, playerY) {
   // Get the pixel data around the player's position (1 pixel above and 1 pixel below)
   const imageData = ctx.getImageData(playerX, playerY - 1, 1, 3).data;
@@ -266,12 +331,10 @@ createBox(player.x, player.y);
 // Check if the player has lost all lives
   if (player.lives <= 0) {
     // Perform any game over actions here
-    alert("Game Over");
-api_chat_send(`My LiltLine Score is: ${playerScore} Can you beat it?`)
-    return; // Stop the animation loop
+   // alert("Game Over");
+//api_chat_send(`My LiltLine Score is: ${playerScore} Can you beat it?`)
+  //  return; // Stop the animation loop
   }
-
-  // ... (existing code)
 
   const offsetX = currentTime * speed;
   thicknessOffset -= 0.01 * speed; // Decrement the thickness offset to make it travel leftwards
@@ -279,6 +342,9 @@ api_chat_send(`My LiltLine Score is: ${playerScore} Can you beat it?`)
   drawWaveform(offsetX);
   drawBoxes();
   drawPlayer();
+
+
+
   // Ensure the player stays within the canvas boundaries
   if (countdownValue > 0) {
     countdownValue -= elapsedTime;
@@ -303,6 +369,26 @@ api_chat_send(`My LiltLine Score is: ${playerScore} Can you beat it?`)
   drawBoxes();
   drawPlayer();
 
+// Update and animate all the yellow walls
+  yellowWalls.forEach(wall => {
+    const currentTime = performance.now();
+
+    if (currentTime < wall.endTime) {
+      const progress = (currentTime - wall.startTime) / (wall.endTime - wall.startTime);
+      const currentX = wall.x - progress * (canvas.width + wall.wallWidth);
+      wall.posX = currentX;
+      // Draw the yellow wall
+      ctx.fillStyle = "rgba(255,255,0,0.5)"; // Yellow color for the wall
+      ctx.fillRect(currentX, 0, wall.wallWidth, canvas.height);
+    } else {
+      // Remove the wall from the array when it is no longer visible on the screen
+      const wallIndex = yellowWalls.indexOf(wall);
+      if (wallIndex !== -1) {
+        yellowWalls.splice(wallIndex, 1);
+      }
+    }
+  });
+ checkCollision();
   // Update and display player distance score
   updateScores();
   drawPlayerScore();
@@ -313,3 +399,148 @@ api_chat_send(`My LiltLine Score is: ${playerScore} Can you beat it?`)
 // Start the animation
 let prevTime = performance.now();
 animate();
+// Create an array to store multiple yellow walls
+var audioAverageLevel = 5000;
+var ATS =0;
+var audioTicks = 1;
+// Function to stream audio
+function streamAudio() {
+
+  
+  var audioStartTime = 0; // Variable to keep track of the audio start time
+
+  // Check if the Web Audio API is supported
+  if (!window.AudioContext && !window.webkitAudioContext) {
+    console.error("Web Audio API is not supported in this browser.");
+    return;
+  }
+
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  const audioContext = new AudioContext();
+
+  // Create an analyser node to analyze the audio data
+  const analyser = audioContext.createAnalyser();
+  analyser.fftSize = 256; // You can adjust this value to control the analysis precision
+
+  // Function to analyze music beats and return true when the beat is loud
+  function analyzeBeats() {
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    analyser.getByteFrequencyData(dataArray);
+
+    // Calculate the average amplitude of the audio data
+    let sum = dataArray.reduce((acc, val) => acc + val, 0);
+    let averageAmplitude = sum / bufferLength;
+    audioAverageLevel += averageAmplitude
+    audioTicks++;
+    const threshold = audioAverageLevel / audioTicks;
+    // You can adjust the threshold value to define when a beat is considered loud
+
+  // Get the current audio timestamp
+    const currentTime = audioContext.currentTime - audioStartTime;
+    // Return true if the average amplitude exceeds the threshold
+  // Return true if the average amplitude exceeds the threshold along with the current timestamp
+    return { isLoudBeat: averageAmplitude > threshold + (averageAmplitude / 4), timestamp: currentTime };
+  }
+
+  // Function to handle the loaded audio data and start analyzing
+  function startAnalysis(audioBuffer) {
+    const sourceNode = audioContext.createBufferSource();
+    sourceNode.buffer = audioBuffer;
+
+    // Connect the source node to the analyser and the analyser to the output (speakers)
+    sourceNode.connect(analyser);
+    analyser.connect(audioContext.destination);
+
+    // Start playing the audio
+    sourceNode.start(0);
+
+    // Call the analyzeBeats function periodically to check for beats
+    setInterval(() => {
+      const {isLoudBeat,timestamp} = analyzeBeats();
+ATS = timestamp;
+      if (isLoudBeat) {
+        throttledOnLoudBeatDetected();
+      }
+    }, 100); // Adjust the interval (in milliseconds) as per your requirement
+  }
+
+  // Function to handle the XMLHttpRequest and decode the audio data
+  function fetchAndDecodeAudio(url) {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.responseType = "arraybuffer";
+
+ xhr.onload = function () {
+    if (xhr.status === 200) {
+      audioStartTime = audioContext.currentTime; // Record the audio start time
+      audioContext.decodeAudioData(xhr.response, startAnalysis, (error) => {
+        console.error("Error decoding audio data:", error);
+      });
+    } else {
+      console.error("Failed to load audio:", xhr.status, xhr.statusText);
+    }
+  };
+
+    xhr.onerror = function() {
+      console.error("Network error occurred while loading audio.");
+    };
+
+    xhr.send();
+  }
+
+  // Call the fetchAndDecodeAudio function to load and start analyzing the audio
+  fetchAndDecodeAudio("https://cdn.jsdelivr.net/gh/poopman-owot/liltline/ll.mp3"); // Replace "your_audio_file.mp3" with the URL to your audio file
+}
+
+function onLoudBeatDetected() {
+blinkCanvasBackground(true);
+drawYellowWall(canvas.width - 100, 5000);
+}
+
+// Function to throttle the call to onLoudBeatDetected
+function throttle(func, limit) {
+  let lastCallTimestamp = 0;
+  return function() {
+    const now = Date.now();
+    if (now - lastCallTimestamp >= limit) {
+      func.apply(this, arguments);
+      lastCallTimestamp = now;
+    }
+  };
+}
+
+// Throttle the onLoudBeatDetected function to be called once a second (1000ms)
+const throttledOnLoudBeatDetected = throttle(onLoudBeatDetected, 600);
+
+// Call the streamAudio function to start streaming and analyzing the audio
+streamAudio();
+
+const overlayDiv = document.createElement("div");
+overlayDiv.style.position = "fixed";
+overlayDiv.style.top = "0";
+overlayDiv.style.left = "0";
+overlayDiv.style.width = "100%";
+overlayDiv.style.height = "100%";
+overlayDiv.style.backgroundColor = "hsla(0, 100%, 50%, 0.5)";
+overlayDiv.style.pointerEvents = "none";
+overlayDiv.style.zindex = 100000;
+document.body.appendChild(overlayDiv);
+function animateHueChange() {
+  let hue = 0; // Starting hue value
+  const animationDuration = 50; // Duration of one loop in milliseconds
+
+  function updateHue() {
+    hue = (hue +( 1/animationDuration)) % 360; // Increment hue and loop back to 0 after 360
+
+    const hueColor = `hsla(${hue}, 100%, 50%, 0.5)`;
+    overlayDiv.style.backgroundColor = hueColor;
+
+    requestAnimationFrame(updateHue);
+  }
+
+  // Call the updateHue function to start the animation
+  updateHue();
+}
+animateHueChange();
