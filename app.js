@@ -8,14 +8,25 @@ function alertmsg(headerText,bodyText, confirmText) {
 		run_js_confirm.onclick = function() {
 			return false;
 		}
-	
-	confirm_js_cancel.onclick = function(){closeJSAlert();Begin();}
-	confirm_js_cancel_x.onclick = function(){closeJSAlert();Begin()};
+	try {
+    getEventListeners(document);
+} catch (error) {
+	confirm_js_cancel.onclick = tryStarting;
+	confirm_js_cancel_x.onclick = tryStarting;
+}
+return
 }
 alertmsg("Instructions","<h3>Move Up/Down</h1><ol><li>W/S<li>Up Arrow/Down Arrow</ol><br><h3>Hit Beat</h1><ol><li>Spacebar<li></ol><br><br><h3>Goal</h1><ol><li>Stay alive as long as you can and get as many points as possible by staying withing the white line.<li></ol><br>","")
 
+function tryStarting(){
+    closeJSAlert();
+    Begin();
+}
 
 function Begin(){
+
+
+
 
 
    let hit = false;
@@ -429,12 +440,8 @@ hue += 50;
 
     // Function to animate the waveform and countdown
     function animate() {
-      try {
-        getEventListeners(document);
-      } catch (error) {
-        
-      }
-      return;
+
+
 
 
       const currentTime = performance.now();
@@ -521,10 +528,11 @@ hue += 50;
 requestAnimationFrame(animate);
 
 
+      }
 
 
 
-    }
+    
 
     // Start the animation
     let prevTime = performance.now();
