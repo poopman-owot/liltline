@@ -1,26 +1,38 @@
-
+var hardcoremode = false;
 function alertmsg(headerText,bodyText, confirmText) {
 	js_alert_active = true;
 	elm.confirm_js.style.display = "";
 	elm.confirm_js_code.innerHTML = bodyText;
 		elm.confirm_js_msg.innerHTML = headerText;
 		run_js_confirm.innerText = confirmText;
-		run_js_confirm.onclick = function() {
-			return false;
-		}
 	try {
     getEventListeners(document);
 } catch (error) {
+		run_js_confirm.onclick = function() {
+			hardcoremode = true;
+alert("HARDCORE MODE ACTIVATED")
+tryStarting();
+		}
+
+	confirm_js_cancel.onclick = tryStarting;
+	confirm_js_cancel_x.onclick = tryStarting;
+
 	confirm_js_cancel.onclick = tryStarting;
 	confirm_js_cancel_x.onclick = tryStarting;
 }
-return
 }
-alertmsg("Instructions","<h3>Move Up/Down</h1><ol><li>W/S<li>Up Arrow/Down Arrow</ol><br><h3>Hit Beat</h1><ol><li>Spacebar<li></ol><br><br><h3>Goal</h1><ol><li>Stay alive as long as you can and get as many points as possible by staying withing the white line.<li></ol><br>","")
+alertmsg("Instructions","<h3>Move Up/Down</h1><ol><li>W/S<li>Up Arrow/Down Arrow</ol><br><h3>Hit Beat</h1><ol><li>Spacebar<li></ol><br><br><h3>Goal</h1><ol><li>Stay alive as long as you can and get as many points as possible by staying withing the white line.<li></ol><br>","HARDCORE MODE")
 
 function tryStarting(){
+
     closeJSAlert();
     Begin();
+
+
+
+
+
+
 }
 
 function Begin(){
@@ -156,13 +168,13 @@ spacebarPressed = false
     }
 
     // Waveform properties
-    let frequency = 0.0001; // Controls the frequency of the Perlin noise for the waveform height
+    let frequency = hardcoremode ? 0.0006 : 0.0001; // Controls the frequency of the Perlin noise for the waveform height
     let intensity = 0; // Start with intensity 0 during countdown
     let targetIntensity = mobile ? owotHeight / 1.5 : owotHeight; // Target intensity after countdown (lerp to this value)
-    let thicknessFrequency = 0.0001; // Controls the frequency of the Perlin noise for the thickness
+    let thicknessFrequency = 0.00006; // Controls the frequency of the Perlin noise for the thickness
     let minThickness = owotHeight / 6; // Thinnest the line can be
     let maxThickness = owotHeight / 3; // Thickest the line can be
-    let speed = owotHeight / 1000; // Controls the speed of the leftwards movement
+    let speed = hardcoremode  ? owotHeight /500: owotHeight / 1000; // Controls the speed of the leftwards movement
     let thicknessOffset = 0; // Initialize the thickness offset
     let verticalShift = owotHeight / 3; // Vertical shift for the waveform
 
@@ -176,7 +188,7 @@ spacebarPressed = false
 
     // Function to update the player distance score and total score
     function updateScores() {
-      playerDistance += speed; // Increment the player distance based on the speed
+      playerDistance += speed + hardcoremode ? 100 : 0; // Increment the player distance based on the speed
       playerScore = Math.floor(playerDistance); // Update the player's score (e.g., increase score every 100 units)
     }
 
@@ -273,7 +285,7 @@ spacebarPressed = false
       speed: 5, // Speed of the player's movement
       lives: 100,
     };
-
+player.speed = hardcoremode ? 10 : 5;
     // Flag for canvas background blink
     let blinkBackground = false;
 
@@ -457,7 +469,8 @@ hue += 50;
       if (player.lives <= 0) {
         // Perform any game over actions here
         alert("Game Over");
-        api_chat_send(`My LiltLine Score is: ${playerScore} Can you beat it?`)
+var gametype = hardcoremode ? "(hardcore mode)": "(easy mode)";
+        api_chat_send(`My LiltLine Score is: ${playerScore} Can you beat it? ${gametype}`)
         return; // Stop the animation loop
       }
 
