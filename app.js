@@ -174,7 +174,7 @@ spacebarPressed = false
     let thicknessFrequency = 0.00006; // Controls the frequency of the Perlin noise for the thickness
     let minThickness = owotHeight / 6; // Thinnest the line can be
     let maxThickness = owotHeight / 3; // Thickest the line can be
-    let speed = hardcoremode  ? owotHeight /500: owotHeight / 1000; // Controls the speed of the leftwards movement
+    let speed = hardcoremode  ? owotHeight /700: owotHeight / 1000; // Controls the speed of the leftwards movement
     let thicknessOffset = 0; // Initialize the thickness offset
     let verticalShift = owotHeight / 3; // Vertical shift for the waveform
 
@@ -188,7 +188,7 @@ spacebarPressed = false
 
     // Function to update the player distance score and total score
     function updateScores() {
-      playerDistance += speed + hardcoremode ? 100 : 0; // Increment the player distance based on the speed
+      playerDistance += speed + (hardcoremode) ? 100 : 0; // Increment the player distance based on the speed
       playerScore = Math.floor(playerDistance); // Update the player's score (e.g., increase score every 100 units)
     }
 
@@ -285,7 +285,7 @@ spacebarPressed = false
       speed: 5, // Speed of the player's movement
       lives: 100,
     };
-player.speed = hardcoremode ? 10 : 5;
+player.speed = hardcoremode ? owotHeight/40 : owotHeight/70;
     // Flag for canvas background blink
     let blinkBackground = false;
 
@@ -388,7 +388,7 @@ hue += 50;
 
         if (playerRight >= yellowWallLeft && spacebarPressed) {
           // Collision detected and spacebar is pressed
-          playerDistance += 1000; // Add 1000 points to the player's score
+          playerDistance += hardcoremode ? 10000 : 1000; // Add 1000 points to the player's score
           spacebarPressed = false; // Reset the spacebar flag to prevent multiple score increments
           blinkCanvasBackground(true);
           const wallIndex = yellowWalls.indexOf(wall);
